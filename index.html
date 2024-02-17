@@ -126,13 +126,13 @@
       chatArea.scrollTop = chatArea.scrollHeight; // Scroll to bottom
     }
 
-    function sendMessage(message) {
-      if (sendChannel) {
-        sendChannel.send(message);
-      } else {
-        alert('Data channel not established.');
-      }
+  function sendMessage(message) {
+    if (sendChannel && sendChannel.readyState === 'open') {
+      sendChannel.send(message);
+    } else {
+      alert('Data channel is not open. Cannot send message.');
     }
+}
 
     // Create a peer connection
     const configuration = {
