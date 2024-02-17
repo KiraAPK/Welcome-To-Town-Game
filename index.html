@@ -126,62 +126,6 @@
       chatArea.scrollTop = chatArea.scrollHeight; // Scroll to bottom
     }
 
-    // Set up peer connection
-    function setupPeerConnection() {
-      console.log('Setting up peer connection...');
-      const configuration = {
-        iceServers: [
-          {
-            urls: 'stun:stun.l.google.com:19302' // Google's public STUN server
-          }
-        ]
-      };
-      peerConnection = new RTCPeerConnection(configuration);
-
-      // Event handler for ICE candidates
-      peerConnection.onicecandidate = event => {
-        if (event.candidate) {
-          console.log('ICE candidate:', event.candidate);
-          // Send the ICE candidate to the remote peer
-        }
-      };
-
-      // Set up data channel for sending messages
-      sendChannel = peerConnection.createDataChannel('sendChannel');
-      sendChannel.onopen = () => {
-        console.log('Data channel is open');
-      };
-      sendChannel.onclose = () => {
-        console.log('Data channel is closed');
-      };
-
-      // Event handler for receiving messages
-      peerConnection.ondatachannel = event => {
-        const receiveChannel = event.channel;
-        receiveChannel.onmessage = event => {
-          appendMessage('Peer: ' + event.data);
-        };
-      };
-
-      // Offer to establish a connection
-      console.log('Creating offer...');
-      peerConnection.createOffer()
-        .then(offer => {
-          console.log('Created offer:', offer);
-          return peerConnection.setLocalDescription(offer);
-        })
-        .then(() => {
-          console.log('Local description set successfully.');
-          // Send the offer to the remote peer
-        })
-        .catch(error => {
-          console.error('Error creating offer:', error);
-        });
-    }
-
-    // Call the setupPeerConnection function when the page loads
-    window.onload = setupPeerConnection;
-
     function sendMessage(message) {
       if (sendChannel && sendChannel.readyState === 'open') {
         sendChannel.send(message);
@@ -189,6 +133,86 @@
         alert('Data channel is not open. Cannot send message.');
       }
     }
+
+    // WebSocket Signaling
+    const signalingChannel = new WebSocket('ws://localhost:3000'); // Change this to your WebSocket server address
+
+    signalingChannel.onopen = () => {
+      console.log('Signaling channel is open');
+    };
+
+    signalingChannel.onmessage = async (event) => {
+      const message = JSON.parse(event.data);
+      if (message.type === 'offer') {
+        console.log('Received offer:', message.offer);
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(message.offer));
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        signalingChannel.send(JSON.stringify({ type: 'answer', answer: answer }));
+        console.log('Sent answer:', answer);
+      } else if (message.type === 'answer') {
+        console.log('Received answer:', message.answer);
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(message.answer));
+      } else if (message.type === 'iceCandidate') {
+        console.log('Received ICE candidate:', message.candidate);
+        await peerConnection.addIceCandidate(new RTCIceCandidate(message.candidate));
+      }
+    };
+
+    signalingChannel.onerror = (error) => {
+      console.error('WebSocket error:', error);
+    };
+
+    // Create a peer connection
+    const configuration = {
+      iceServers: [
+        {
+          urls: 'stun:stun.l.google.com:19302' // Google's public STUN server
+        }
+      ]
+    };
+    peerConnection = new RTCPeerConnection(configuration);
+
+    // Set up data channel for sending messages
+    sendChannel = peerConnection.createDataChannel('sendChannel');
+    sendChannel.onopen = () => {
+      console.log('Data channel is open');
+    };
+    sendChannel.onclose = () => {
+      console.log('Data channel is closed');
+    };
+
+    // Set up event handler for receiving messages
+    peerConnection.ondatachannel = event => {
+      const receiveChannel = event.channel;
+      receiveChannel.onmessage = event => {
+        appendMessage('Peer: ' + event.data);
+      };
+    };
+
+    // Set up event handler for ICE candidates
+    peerConnection.onicecandidate = event => {
+      if (event.candidate) {
+        console.log('ICE candidate:', event.candidate);
+        signalingChannel.send(JSON.stringify({ type: 'iceCandidate', candidate: event.candidate }));
+      }
+    };
+
+    // Offer to establish a connection
+    console.log('Setting up peer connection...');
+    peerConnection.createOffer()
+      .then(offer => {
+        console.log('Created offer:', offer);
+        return peerConnection.setLocalDescription(offer);
+      })
+      .then(() => {
+        console.log('Local description set successfully.');
+        // Send the offer to the remote peer
+        signalingChannel.send(JSON.stringify({ type: 'offer', offer: peerConnection.localDescription }));
+      })
+      .catch(error => {
+        console.error('Error creating offer:', error);
+      });
   </script>
 </body>
 </html>
