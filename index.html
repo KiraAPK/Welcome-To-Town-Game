@@ -126,15 +126,14 @@
       chatArea.scrollTop = chatArea.scrollHeight; // Scroll to bottom
     }
 
-function sendMessage(message) {
-  if (sendChannel && sendChannel.readyState === 'open') {
-    sendChannel.send(message);
-  } else {
-    console.log('Data channel is not open. Cannot send message.');
-    // You might want to handle this error more gracefully, e.g., by queuing the messages
-  }
-}
-
+    function sendMessage(message) {
+      if (sendChannel && sendChannel.readyState === 'open') {
+        sendChannel.send(message);
+      } else {
+        console.log('Data channel is not open. Cannot send message.');
+        // You might want to handle this error more gracefully, e.g., by queuing the messages
+      }
+    }
 
     // WebSocket Signaling
     const signalingChannel = new WebSocket('ws://localhost:3000'); // Change this to your WebSocket server address
@@ -144,27 +143,54 @@ function sendMessage(message) {
     };
 
     signalingChannel.onmessage = async (event) => {
-      const message = event.data;
+      const message = event.data; // Directly access the message
       console.log('Received message:', message);
-      if (message.type === 'offer') {
-        console.log('Received offer:', message.offer);
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(message.offer));
-        const answer = await peerConnection.createAnswer();
-        await peerConnection.setLocalDescription(answer);
-        signalingChannel.send(JSON.stringify({ type: 'answer', answer: answer }));
-        console.log('Sent answer:', answer);
-      } else if (message.type === 'answer') {
-        console.log('Received answer:', message.answer);
-        await peerConnection.setRemoteDescription(new RTCSessionDescription(message.answer));
-      } else if (message.type === 'iceCandidate') {
-        console.log('Received ICE candidate:', message.candidate);
-        await peerConnection.addIceCandidate(new RTCIceCandidate(message.candidate));
-      }
+      handleMessage(message); // Pass the message to the handler
     };
 
     signalingChannel.onerror = (error) => {
       console.error('WebSocket error:', error);
     };
+
+    // Handle received messages
+    function handleMessage(message) {
+      // Parse JSON if necessary
+      try {
+        const data = JSON.parse(message);
+        switch (data.type) {
+          case 'offer':
+          case 'answer':
+          case 'iceCandidate':
+            // Handle signaling messages
+            handleSignalingMessage(data);
+            break;
+          default:
+            console.log('Unknown message type:', data.type);
+        }
+      } catch (error) {
+        console.error('Error handling message:', error);
+      }
+    }
+
+    // Handle signaling messages
+    function handleSignalingMessage(message) {
+      switch (message.type) {
+        case 'offer':
+          console.log('Received offer:', message.offer);
+          // Handle offer
+          break;
+        case 'answer':
+          console.log('Received answer:', message.answer);
+          // Handle answer
+          break;
+        case 'iceCandidate':
+          console.log('Received ICE candidate:', message.candidate);
+          // Handle ICE candidate
+          break;
+        default:
+          console.log('Unknown signaling message:', message);
+      }
+    }
 
     // Create a peer connection
     const configuration = {
@@ -208,14 +234,4 @@ function sendMessage(message) {
         console.log('Created offer:', offer);
         return peerConnection.setLocalDescription(offer);
       })
-      .then(() => {
-        console.log('Local description set successfully.');
-        // Send the offer to the remote peer
-        signalingChannel.send(JSON.stringify({ type: 'offer', offer: peerConnection.localDescription }));
-      })
-      .catch(error => {
-        console.error('Error creating offer:', error);
-      });
-  </script>
-</body>
-</html>
+      .then(
