@@ -126,13 +126,15 @@
       chatArea.scrollTop = chatArea.scrollHeight; // Scroll to bottom
     }
 
-    function sendMessage(message) {
-      if (sendChannel && sendChannel.readyState === 'open') {
-        sendChannel.send(message);
-      } else {
-        alert('Data channel is not open. Cannot send message.');
-      }
-    }
+function sendMessage(message) {
+  if (sendChannel && sendChannel.readyState === 'open') {
+    sendChannel.send(message);
+  } else {
+    console.log('Data channel is not open. Cannot send message.');
+    // You might want to handle this error more gracefully, e.g., by queuing the messages
+  }
+}
+
 
     // WebSocket Signaling
     const signalingChannel = new WebSocket('ws://localhost:3000'); // Change this to your WebSocket server address
