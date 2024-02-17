@@ -128,6 +128,7 @@
 
     // Set up peer connection
     function setupPeerConnection() {
+      console.log('Setting up peer connection...');
       const configuration = {
         iceServers: [
           {
@@ -140,6 +141,7 @@
       // Event handler for ICE candidates
       peerConnection.onicecandidate = event => {
         if (event.candidate) {
+          console.log('ICE candidate:', event.candidate);
           // Send the ICE candidate to the remote peer
         }
       };
@@ -162,9 +164,14 @@
       };
 
       // Offer to establish a connection
+      console.log('Creating offer...');
       peerConnection.createOffer()
-        .then(offer => peerConnection.setLocalDescription(offer))
+        .then(offer => {
+          console.log('Created offer:', offer);
+          return peerConnection.setLocalDescription(offer);
+        })
         .then(() => {
+          console.log('Local description set successfully.');
           // Send the offer to the remote peer
         })
         .catch(error => {
