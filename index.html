@@ -104,6 +104,7 @@
     const chatInput = document.getElementById('chatInput');
     const chatArea = document.getElementById('chatArea');
     let peerConnection;
+    let sendChannel;
 
     chatInput.addEventListener('keypress', function(event) {
       if (event.key === 'Enter') {
@@ -126,10 +127,10 @@
     }
 
     function sendMessage(message) {
-      if (peerConnection) {
-        peerConnection.send(message);
+      if (sendChannel) {
+        sendChannel.send(message);
       } else {
-        alert('Peer connection not established.');
+        alert('Data channel not established.');
       }
     }
 
@@ -143,28 +144,21 @@
     };
     peerConnection = new RTCPeerConnection(configuration);
 
-    // Set up event handlers for the peer connection
-    peerConnection.onicecandidate = event => {
-      if (event.candidate) {
-        // Send the ICE candidate to the remote peer
-      }
-    };
-
-    peerConnection.ondatachannel = event => {
-      // Receive data from the remote peer
-      const receiveChannel = event.channel;
-      receiveChannel.onmessage = event => {
-        appendMessage('Peer: ' + event.data);
-      };
-    };
-
-    // Create a data channel for sending messages
-    const sendChannel = peerConnection.createDataChannel('sendChannel');
+    // Set up data channel for sending messages
+    sendChannel = peerConnection.createDataChannel('sendChannel');
     sendChannel.onopen = () => {
       console.log('Data channel is open');
     };
     sendChannel.onclose = () => {
       console.log('Data channel is closed');
+    };
+
+    // Set up event handler for receiving messages
+    peerConnection.ondatachannel = event => {
+      const receiveChannel = event.channel;
+      receiveChannel.onmessage = event => {
+        appendMessage('Peer: ' + event.data);
+      };
     };
 
     // Offer to establish a connection
