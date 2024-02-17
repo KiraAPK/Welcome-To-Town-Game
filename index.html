@@ -142,7 +142,8 @@
     };
 
     signalingChannel.onmessage = async (event) => {
-      const message = JSON.parse(event.data);
+      const message = event.data;
+      console.log('Received message:', message);
       if (message.type === 'offer') {
         console.log('Received offer:', message.offer);
         await peerConnection.setRemoteDescription(new RTCSessionDescription(message.offer));
