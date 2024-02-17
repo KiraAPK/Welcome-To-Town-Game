@@ -135,22 +135,39 @@
       }
     }
 
-    // WebSocket Signaling
-    const signalingChannel = new WebSocket('ws://localhost:3000'); // Change this to your WebSocket server address
+// WebSocket Signaling
+const signalingChannel = new WebSocket('ws://localhost:3000'); // Change this to your WebSocket server address
 
-    signalingChannel.onopen = () => {
-      console.log('Signaling channel is open');
-    };
+signalingChannel.onopen = () => {
+  console.log('Signaling channel is open');
+};
 
-    signalingChannel.onmessage = async (event) => {
-      const message = event.data; // Directly access the message
-      console.log('Received message:', message);
-      handleMessage(message); // Pass the message to the handler
-    };
+signalingChannel.onmessage = async (event) => {
+  const message = event.data;
+  console.log('Received message:', message);
+  
+  // Check if the message is JSON before parsing it
+  if (isJSON(message)) {
+    handleMessage(JSON.parse(message));
+  } else {
+    console.log('Received plain text message:', message);
+    // Handle the plain text message accordingly
+  }
+};
 
-    signalingChannel.onerror = (error) => {
-      console.error('WebSocket error:', error);
-    };
+signalingChannel.onerror = (error) => {
+  console.error('WebSocket error:', error);
+};
+
+// Function to check if a string is JSON
+function isJSON(str) {
+  try {
+    JSON.parse(str);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
 
     // Handle received messages
     function handleMessage(message) {
