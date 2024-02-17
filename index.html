@@ -102,36 +102,39 @@
   </div>
   <!-- Place this script tag before your custom JavaScript code -->
   <script src="https://cdn.socket.io/4.3.2/socket.io.js"></script>
-  <script>
-    const chatInput = document.getElementById('chatInput');
-    const chatArea = document.getElementById('chatArea');
+<!-- Place this script tag before your custom JavaScript code -->
+<script src="https://cdn.socket.io/4.3.2/socket.io.js"></script>
+<script>
+  const chatInput = document.getElementById('chatInput');
+  const chatArea = document.getElementById('chatArea');
 
-    const socket = io();
+  const socket = io('http://localhost:3000'); // Replace <port> with your server's port number
 
-    chatInput.addEventListener('keypress', function(event) {
-      if (event.key === 'Enter') {
-        event.preventDefault();
-        const message = chatInput.value.trim();
-        if (message !== '') {
-          appendMessage(message);
-          socket.emit('chatMessage', message); // Send message to server
-          chatInput.value = '';
-        }
+  chatInput.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      const message = chatInput.value.trim();
+      if (message !== '') {
+        appendMessage(message);
+        socket.emit('chatMessage', message); // Send message to server
+        chatInput.value = '';
       }
-    });
-
-    function appendMessage(message) {
-      const messageElement = document.createElement('div');
-      messageElement.classList.add('message');
-      messageElement.textContent = message;
-      chatArea.appendChild(messageElement);
-      chatArea.scrollTop = chatArea.scrollHeight; // Scroll to bottom
     }
+  });
 
-    // Listen for incoming messages from server
-    socket.on('chatMessage', function(message) {
-      appendMessage(message);
-    });
-  </script>
+  function appendMessage(message) {
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('message');
+    messageElement.textContent = message;
+    chatArea.appendChild(messageElement);
+    chatArea.scrollTop = chatArea.scrollHeight; // Scroll to bottom
+  }
+
+  // Listen for incoming messages from server
+  socket.on('chatMessage', function(message) {
+    appendMessage(message);
+  });
+</script>
+
 </body>
 </html>
