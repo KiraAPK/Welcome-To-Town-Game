@@ -234,4 +234,14 @@
         console.log('Created offer:', offer);
         return peerConnection.setLocalDescription(offer);
       })
-      .then(
+      .then(() => {
+        console.log('Local description set successfully.');
+        // Send the offer to the remote peer
+        signalingChannel.send(JSON.stringify({ type: 'offer', offer: peerConnection.localDescription }));
+      })
+      .catch(error => {
+        console.error('Error creating offer:', error);
+      });
+  </script>
+</body>
+</html>
