@@ -57,6 +57,19 @@
       margin-bottom: 10px;
       border-radius: 3px;
     }
+
+    /* Chat input styles */
+    .chat-input {
+      width: calc(100% - 20px);
+      height: 100px;
+      padding: 10px;
+      margin: 10px 0;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      resize: none; /* Disable textarea resizing */
+    }
   </style>
 </head>
 <body>
@@ -74,5 +87,6 @@
   <footer>
     <p>© 2024 Welcome to Town</p>
   </footer>
+  <textarea class="chat-input" placeholder="Type your message here..."></textarea>
 </body>
 </html>
