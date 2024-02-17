@@ -126,15 +126,7 @@
       chatArea.scrollTop = chatArea.scrollHeight; // Scroll to bottom
     }
 
-    function sendMessage(message) {
-      if (sendChannel && sendChannel.readyState === 'open') {
-        sendChannel.send(message);
-      } else {
-        alert('Data channel is not open. Cannot send message.');
-      }
-    }
-
-    // Create a peer connection and set up data channel
+    // Set up peer connection
     function setupPeerConnection() {
       const configuration = {
         iceServers: [
@@ -145,6 +137,13 @@
       };
       peerConnection = new RTCPeerConnection(configuration);
 
+      // Event handler for ICE candidates
+      peerConnection.onicecandidate = event => {
+        if (event.candidate) {
+          // Send the ICE candidate to the remote peer
+        }
+      };
+
       // Set up data channel for sending messages
       sendChannel = peerConnection.createDataChannel('sendChannel');
       sendChannel.onopen = () => {
@@ -154,7 +153,7 @@
         console.log('Data channel is closed');
       };
 
-      // Set up event handler for receiving messages
+      // Event handler for receiving messages
       peerConnection.ondatachannel = event => {
         const receiveChannel = event.channel;
         receiveChannel.onmessage = event => {
@@ -175,6 +174,14 @@
 
     // Call the setupPeerConnection function when the page loads
     window.onload = setupPeerConnection;
+
+    function sendMessage(message) {
+      if (sendChannel && sendChannel.readyState === 'open') {
+        sendChannel.send(message);
+      } else {
+        alert('Data channel is not open. Cannot send message.');
+      }
+    }
   </script>
 </body>
 </html>
