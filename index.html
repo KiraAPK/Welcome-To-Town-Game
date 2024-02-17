@@ -4,8 +4,81 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome to Town</title>
-  <style>
-    /* Styles unchanged */
+<style>
+    /* Overall container styles */
+    body {
+      background-color: #222;
+      color: #fff;
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    /* Header and footer styles */
+    header, footer {
+      background-color: #333;
+      padding: 10px 0;
+      text-align: center;
+    }
+
+    /* Player role display styles */
+    .player-role {
+      background-color: #444;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 10px;
+    }
+
+    /* Button styles for player actions */
+    .button {
+      background-color: #555;
+      color: #fff;
+      border: none;
+      border-radius: 3px;
+      padding: 8px 12px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .button:hover {
+      background-color: #666;
+    }
+
+    /* Message display styles */
+    .message {
+      background-color: #222;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 3px;
+    }
+
+    /* Chat input styles */
+    .chat-input {
+      width: calc(100% - 20px);
+      height: 100px;
+      padding: 10px;
+      margin: 10px 0;
+      background-color: #333;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      resize: none; /* Disable textarea resizing */
+    }
+
+    /* Chat area styles */
+    .chat-area {
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 10px;
+      background-color: #111;
+      border-radius: 5px;
+    }
   </style>
 </head>
 <body>
