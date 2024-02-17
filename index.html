@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Welcome to Town</title>
- <style>
+  <style>
     /* Overall container styles */
     body {
       background-color: #222;
@@ -106,7 +106,6 @@
     let peerConnection;
     let sendChannel;
 
-    // Event listener for sending messages when Enter key is pressed
     chatInput.addEventListener('keypress', function(event) {
       if (event.key === 'Enter') {
         event.preventDefault();
@@ -119,7 +118,6 @@
       }
     });
 
-    // Function to append message to chat area
     function appendMessage(message) {
       const messageElement = document.createElement('div');
       messageElement.classList.add('message');
@@ -128,7 +126,6 @@
       chatArea.scrollTop = chatArea.scrollHeight; // Scroll to bottom
     }
 
-    // Function to send message via data channel
     function sendMessage(message) {
       if (sendChannel && sendChannel.readyState === 'open') {
         sendChannel.send(message);
@@ -137,8 +134,8 @@
       }
     }
 
-    // Function to create peer connection and set up data channel
-    function createPeerConnection() {
+    // Create a peer connection and set up data channel
+    function setupPeerConnection() {
       const configuration = {
         iceServers: [
           {
@@ -169,15 +166,15 @@
       peerConnection.createOffer()
         .then(offer => peerConnection.setLocalDescription(offer))
         .then(() => {
-          // Send the offer to the remote peer (not implemented in this example)
+          // Send the offer to the remote peer
         })
         .catch(error => {
           console.error('Error creating offer:', error);
         });
     }
 
-    // Call the function to create peer connection when the page loads
-    window.onload = createPeerConnection;
+    // Call the setupPeerConnection function when the page loads
+    window.onload = setupPeerConnection;
   </script>
 </body>
 </html>
