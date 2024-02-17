@@ -2,10 +2,14 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const path = require('path');
+const cors = require('cors'); // Step 2: Require the 'cors' module
 
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
+
+// Step 2: Use the cors middleware to enable CORS
+app.use(cors());
 
 // Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
