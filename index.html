@@ -103,13 +103,15 @@
   <script>
     const chatInput = document.getElementById('chatInput');
     const chatArea = document.getElementById('chatArea');
+    let peerConnection;
 
     chatInput.addEventListener('keypress', function(event) {
       if (event.key === 'Enter') {
         event.preventDefault();
         const message = chatInput.value.trim();
         if (message !== '') {
-          appendMessage(message);
+          appendMessage('You: ' + message);
+          sendMessage(message);
           chatInput.value = '';
         }
       }
@@ -122,6 +124,58 @@
       chatArea.appendChild(messageElement);
       chatArea.scrollTop = chatArea.scrollHeight; // Scroll to bottom
     }
+
+    function sendMessage(message) {
+      if (peerConnection) {
+        peerConnection.send(message);
+      } else {
+        alert('Peer connection not established.');
+      }
+    }
+
+    // Create a peer connection
+    const configuration = {
+      iceServers: [
+        {
+          urls: 'stun:stun.l.google.com:19302' // Google's public STUN server
+        }
+      ]
+    };
+    peerConnection = new RTCPeerConnection(configuration);
+
+    // Set up event handlers for the peer connection
+    peerConnection.onicecandidate = event => {
+      if (event.candidate) {
+        // Send the ICE candidate to the remote peer
+      }
+    };
+
+    peerConnection.ondatachannel = event => {
+      // Receive data from the remote peer
+      const receiveChannel = event.channel;
+      receiveChannel.onmessage = event => {
+        appendMessage('Peer: ' + event.data);
+      };
+    };
+
+    // Create a data channel for sending messages
+    const sendChannel = peerConnection.createDataChannel('sendChannel');
+    sendChannel.onopen = () => {
+      console.log('Data channel is open');
+    };
+    sendChannel.onclose = () => {
+      console.log('Data channel is closed');
+    };
+
+    // Offer to establish a connection
+    peerConnection.createOffer()
+      .then(offer => peerConnection.setLocalDescription(offer))
+      .then(() => {
+        // Send the offer to the remote peer
+      })
+      .catch(error => {
+        console.error('Error creating offer:', error);
+      });
   </script>
 </body>
 </html>
